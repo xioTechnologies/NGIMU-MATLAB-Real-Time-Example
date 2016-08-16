@@ -1,0 +1,6 @@
+function udpObject = openConnection(localPort)
+    udpObject = udp('255.255.255.255', ...
+                    'Localport', localPort, ...
+                    'InputBufferSize', 1472); % 1472 is the maximum UDP packet size
+    fopen(udpObject);
+end
