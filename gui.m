@@ -125,7 +125,7 @@ function openPushButton_Callback(hObject, eventdata, handles)
     % Open UDP socket
     try
         udpPort = str2double(get(handles.udpPortEditText, 'String'));
-        handles.udp = udp('255.255.255.255',  'Localport', udpPort,  'InputBufferSize', 1472);
+        handles.udp = udp('255.255.255.255',  'Localport', udpPort,  'InputBufferSize', 4096);
         handles.udp.datagramReceivedFcn = {@processData_Callback, handles};
         fopen(handles.udp);
     catch exception
@@ -156,8 +156,9 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
 
-    if exist('handles.udp', 'var')
-        fclose(handles.udp);
+    try
+        fclose(instrfindall);
+    catch
     end
     stop(handles.timer);
     delete(handles.timer);
@@ -169,18 +170,23 @@ end
 
 function processData_Callback(hObject, eventdata, handles)
 
+    % Do nothing if socket closed
+    if strcmp(handles.udp.Status, 'closed')
+        return;
+    end
+
+    % Discad input buffer if overrun
+    if handles.udp.BytesAvailable == handles.udp.InputBufferSize
+        flushinput(handles.udp);
+        warning('UDP input buffer overrun.');
+        return;
+    end
+
     % Read UDP packet
-    charArray = char(fread(handles.udp, eventdata.Data.DatagramLength))';
+    charArray = char(fread(handles.udp))';
 
     % Prcess OSC packet
-    oscMessages = [];
-    try
-        oscMessages = getOscMessages(charArray);
-    catch exception
-        disp(exception.message); % TODO: Prevent does MATLAB from corrupting UDP packets
-        %disp(charArray);
-        %fprintf('eventdata.Data.DatagramLength = %i, length(charArray) = %i\r\n', eventdata.Data.DatagramLength, length(charArray));
-    end
+    oscMessages = getOscMessages(charArray);
 
     % Process OSC messages
     for oscMessagesIndex = 1:length(oscMessages)
@@ -213,4 +219,5 @@ function timer_Callback(hObject, eventdata, handles)
     handles.accelerometerPlot.updatePlot();
     handles.magnetometerPlot.updatePlot();
     handles.quaternionPlot.updatePlot();
+	drawnow;
 end
