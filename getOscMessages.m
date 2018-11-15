@@ -1,15 +1,5 @@
-function oscMessages = readOscMessages(udpObject)
-
-    % Read UDP packet
-    charArray = char(fread(udpObject, 1472))'; % 1472 is the maximum UDP packet size
-
-    % Process OSC packet
-    try
-        oscMessages = processOscPacket(charArray, NaN, []);
-    catch
-        oscMessages = [];
-        warning('Unable to process OSC packet. This is probably due to fread returning an incomplete UDP packet.');
-    end
+function oscMessages = getOscMessages(charArray)
+	oscMessages = processOscPacket(charArray, NaN, []);
 end
 
 function oscMessages = processOscPacket(charArray, timestamp, oscMessages)
@@ -78,7 +68,7 @@ function oscMessage = processOscMessage(charArray)
     argumentsArray = remainder((1 + numberOfNullCharacters):end);
 
     % Parse each argument
-    for oscTypeTagStringIndex = 1:length(oscTypeTagString);
+    for oscTypeTagStringIndex = 1:length(oscTypeTagString)
         switch oscTypeTagString(oscTypeTagStringIndex)
             case 'i'
                 int32 = typecast(uint8(flip(argumentsArray(1:4))), 'int32');
