@@ -68,7 +68,9 @@ classdef quaternionPlot < handle
             R(3,3) = 2.*q(1).^2-1+2.*q(4).^2;
 
             % Udate teapot
-            rotatedTeaPot = pctransform(obj.teaPot, affine3d(rotm2tform(R)));
+            T = eye(4);
+            T(1:3, 1:3) = R;
+            rotatedTeaPot = pctransform(obj.teaPot, affine3d(T));
             set(obj.teaPotPlot, 'XData', rotatedTeaPot.Location(:, 1));
             set(obj.teaPotPlot, 'YData', rotatedTeaPot.Location(:, 2));
             set(obj.teaPotPlot, 'ZData', rotatedTeaPot.Location(:, 3));
