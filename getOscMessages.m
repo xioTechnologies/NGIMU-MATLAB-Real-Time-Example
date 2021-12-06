@@ -91,10 +91,8 @@ function oscMessage = processOscMessage(charArray)
                 oscMessage.arguments{oscTypeTagStringIndex} = argumentsArray(5:(4 + blobSize));
                 argumentsArray = argumentsArray((5 + blobSize + 1):end);
             case 'T'
-                argumentsArray = argumentsArray(2:end);
                 oscMessage.arguments{oscTypeTagStringIndex} = true;
             case 'F'
-                argumentsArray = argumentsArray(2:end);
                 oscMessage.arguments{oscTypeTagStringIndex} = false;
             otherwise
                 warning('Argument type not supported.');
