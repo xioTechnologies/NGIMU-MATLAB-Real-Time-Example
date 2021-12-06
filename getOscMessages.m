@@ -85,11 +85,15 @@ function oscMessage = processOscMessage(charArray)
                 while mod(length(string) + numberOfNullCharacters, 4) ~= 0
                     numberOfNullCharacters = numberOfNullCharacters + 1;
                 end
-                argumentsArray = argumentsArray(length(string) + numberOfNullCharacters:end);
+                argumentsArray = argumentsArray((length(string) + numberOfNullCharacters):end);
             case 'b'
                 blobSize = typecast(uint8(flip(argumentsArray(1:4))), 'int32');
                 oscMessage.arguments{oscTypeTagStringIndex} = argumentsArray(5:(4 + blobSize));
-                argumentsArray = argumentsArray((5 + blobSize + 1):end);
+				numberOfNullCharacters = 0;
+                while mod(blobSize + numberOfNullCharacters, 4) ~= 0
+                    numberOfNullCharacters = numberOfNullCharacters + 1;
+                end				
+                argumentsArray = argumentsArray((5 + blobSize + numberOfNullCharacters):end);
             case 'T'
                 oscMessage.arguments{oscTypeTagStringIndex} = true;
             case 'F'
